@@ -64,16 +64,30 @@ export class ScheduleService {
    * Update one collection item.
    */
   async update(id: string, updateScheduleDto: UpdateScheduleDto) {
-    const schedule = await this.scheduleModel.findByIdAndUpdate(
-      id,
-      updateScheduleDto,
-    );
+    try {
+      const availability = await this.checkAvailability(updateScheduleDto);
+      if (!availability) {
+        throw new BadRequestException('Slot are not available for scheduling!');
+      }
 
-    if (!schedule) {
-      throw new NotFoundException('Schedule not found!');
+      const finish = this.getSlotFinishDate(
+        updateScheduleDto.type,
+        updateScheduleDto.start,
+      );
+      updateScheduleDto.finish = finish;
+      const schedule = await this.scheduleModel.findByIdAndUpdate(
+        id,
+        updateScheduleDto,
+      );
+
+      if (!schedule) {
+        throw new NotFoundException('Schedule not found!');
+      }
+
+      return schedule;
+    } catch (error) {
+      return error?.response;
     }
-
-    return schedule;
   }
 
   /**
@@ -92,7 +106,9 @@ export class ScheduleService {
   /**
    * Check slot time availability.e.
    */
-  protected async checkAvailability(createScheduleDto: CreateScheduleDto) {
+  protected async checkAvailability(
+    createScheduleDto: CreateScheduleDto | UpdateScheduleDto,
+  ) {
     const finish = this.getSlotFinishDate(
       createScheduleDto.type,
       createScheduleDto.start,
@@ -105,8 +121,6 @@ export class ScheduleService {
         $lte: new Date(finish),
       },
     });
-
-    console.log('lenght: ' + schedules.length);
 
     return schedules.length < 1 ? true : false;
   }
