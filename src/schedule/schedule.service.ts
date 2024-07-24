@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateScheduleDto } from '@src/schedule/dto/create-schedule.dto';
@@ -10,14 +14,30 @@ export class ScheduleService {
   constructor(
     @InjectModel(Schedule.name) private scheduleModel: Model<Schedule>,
   ) {}
+
   /**
    * Create new collection item.
    */
   async create(createScheduleDto: CreateScheduleDto) {
-    const createdSchedule = new this.scheduleModel(createScheduleDto);
+    try {
+      const availability = await this.checkAvailability(createScheduleDto);
 
-    return await createdSchedule.save();
+      if (!availability) {
+        throw new BadRequestException('Slot are not available for scheduling!');
+      }
+
+      const finish = this.getSlotFinishDate(
+        createScheduleDto.type,
+        createScheduleDto.start,
+      );
+      createScheduleDto.finish = finish;
+      const createdSchedule = new this.scheduleModel(createScheduleDto);
+      return await createdSchedule.save();
+    } catch (error) {
+      return error?.response;
+    }
   }
+
   /**
    * List all collection items.
    */
@@ -26,6 +46,7 @@ export class ScheduleService {
 
     return schedules;
   }
+
   /**
    * List one collection item.
    */
@@ -38,6 +59,7 @@ export class ScheduleService {
 
     return schedule;
   }
+
   /**
    * Update one collection item.
    */
@@ -53,6 +75,7 @@ export class ScheduleService {
 
     return schedule;
   }
+
   /**
    * Delete one collection item.
    */
@@ -64,5 +87,47 @@ export class ScheduleService {
     }
 
     return schedule;
+  }
+
+  /**
+   * Check slot time availability.e.
+   */
+  protected async checkAvailability(createScheduleDto: CreateScheduleDto) {
+    const finish = this.getSlotFinishDate(
+      createScheduleDto.type,
+      createScheduleDto.start,
+    );
+    createScheduleDto.finish = finish;
+
+    const schedules = await this.scheduleModel.find({
+      start: {
+        $gte: new Date(createScheduleDto.start),
+        $lte: new Date(finish),
+      },
+    });
+
+    console.log('lenght: ' + schedules.length);
+
+    return schedules.length < 1 ? true : false;
+  }
+
+  /**
+   * Get quantity of slots by type.
+   */
+  protected getSlotFinishDate(type: string, slot: Date): Date {
+    const startDate = new Date(slot);
+    const finishDate = new Date(startDate);
+
+    if (type === 'SIMPLE') {
+      finishDate.setMinutes(startDate.getMinutes() + 29);
+      finishDate.setSeconds(59);
+    }
+
+    if (type === 'COMPLETE') {
+      finishDate.setMinutes(startDate.getMinutes() + 44);
+      finishDate.setSeconds(59);
+    }
+
+    return finishDate;
   }
 }

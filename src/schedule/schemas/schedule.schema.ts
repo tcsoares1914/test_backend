@@ -6,9 +6,6 @@ export type ScheduleDocument = HydratedDocument<Schedule>;
 @Schema()
 export class Schedule {
   @Prop()
-  name: string;
-
-  @Prop()
   plate: string;
 
   @Prop()

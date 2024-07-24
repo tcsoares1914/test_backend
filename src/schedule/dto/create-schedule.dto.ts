@@ -1,10 +1,12 @@
-import { IsBoolean, IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateScheduleDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
   @IsString()
   @IsNotEmpty()
   plate: string;
@@ -13,13 +15,13 @@ export class CreateScheduleDto {
   @IsNotEmpty()
   type: string;
 
-  @IsDateString()
+  @IsString()
   @IsNotEmpty()
-  start: string;
+  start: Date;
 
-  @IsDateString()
-  @IsNotEmpty()
-  finish: string;
+  @IsDate()
+  @IsOptional()
+  finish: Date;
 
   @IsBoolean()
   @IsNotEmpty()
