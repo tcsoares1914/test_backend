@@ -5,20 +5,20 @@ export type ScheduleDocument = HydratedDocument<Schedule>;
 
 @Schema()
 export class Schedule {
-  @Prop()
+  @Prop({ required: true })
   plate: string;
 
-  @Prop()
+  @Prop({ required: true })
   type: string;
 
-  @Prop()
+  @Prop({ required: true })
   start: Date;
 
   @Prop()
   finish: Date;
 
-  @Prop()
-  confirmation: boolean;
+  @Prop({ default: 'PENDING' })
+  status: string;
 }
 
 export const ScheduleSchema = SchemaFactory.createForClass(Schedule);

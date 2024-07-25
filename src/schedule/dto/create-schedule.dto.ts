@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateScheduleDto {
   @IsString()
@@ -17,7 +17,7 @@ export class CreateScheduleDto {
   @IsOptional()
   finish: Date;
 
-  @IsBoolean()
-  @IsNotEmpty()
-  confirmation: string;
+  @IsString()
+  @IsOptional()
+  status: string;
 }

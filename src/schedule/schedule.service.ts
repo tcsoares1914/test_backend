@@ -32,8 +32,10 @@ export class ScheduleService {
       );
       createScheduleDto.finish = finish;
       const createdSchedule = new this.scheduleModel(createScheduleDto);
+
       return await createdSchedule.save();
     } catch (error) {
+      console.log(error);
       return error?.response;
     }
   }

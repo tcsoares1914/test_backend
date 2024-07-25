@@ -1,11 +1,11 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateScheduleDto } from '@src/schedule/dto/create-schedule.dto';
 
 export class UpdateScheduleDto extends PartialType(CreateScheduleDto) {
   @IsString()
   @IsOptional()
-  id?: string;
+  _id?: string;
 
   @IsString()
   @IsOptional()
@@ -23,7 +23,7 @@ export class UpdateScheduleDto extends PartialType(CreateScheduleDto) {
   @IsOptional()
   finish?: Date;
 
-  @IsBoolean()
+  @IsString()
   @IsOptional()
-  confirmation?: string;
+  status?: string;
 }
