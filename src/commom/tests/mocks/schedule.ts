@@ -37,7 +37,7 @@ export class ScheduleTestMocks {
   }
 
   static getSchedules(): Schedule[] {
-    const vehicles: Schedule[] = [
+    const schedules: Schedule[] = [
       {
         id: '00000000-0000-0000-0000-000000000000',
         plate: 'ABC1D34',
@@ -60,7 +60,7 @@ export class ScheduleTestMocks {
       },
     ];
 
-    return vehicles;
+    return schedules;
   }
 
   static getNewSchedule(): Schedule {

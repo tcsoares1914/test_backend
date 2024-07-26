@@ -27,7 +27,7 @@ export class ScheduleService {
     try {
       const availability = await this.checkAvailability(createScheduleDto);
 
-      if (!availability) {
+      if (availability.length > 0) {
         throw new BadRequestException('Slot are not available for scheduling!');
       }
 
@@ -36,18 +36,17 @@ export class ScheduleService {
         createScheduleDto.start,
       );
       createScheduleDto.finish = finish;
-      const vehicle = this.scheduleRepository.create(createScheduleDto);
-      const newVehicle = await this.scheduleRepository.save(vehicle);
+      const schedule = this.scheduleRepository.create(createScheduleDto);
+      const newSchedule = await this.scheduleRepository.save(schedule);
 
-      if (!newVehicle) {
+      if (!newSchedule) {
         throw new InternalServerErrorException(
-          'Problem to create a vehicle. Try again!',
+          'Problem to create a schedule. Try again!',
         );
       }
 
-      return newVehicle;
+      return newSchedule;
     } catch (error) {
-      console.log(error);
       return error?.response;
     }
   }
@@ -80,7 +79,8 @@ export class ScheduleService {
   async update(id: string, updateScheduleDto: UpdateScheduleDto) {
     try {
       const availability = await this.checkAvailability(updateScheduleDto);
-      if (!availability) {
+
+      if (availability.length > 0) {
         throw new BadRequestException('Slot are not available for scheduling!');
       }
 
@@ -95,12 +95,12 @@ export class ScheduleService {
         ...schedule,
         ...updateScheduleDto,
       });
-      const updatedVehicle = this.scheduleRepository.save({
+      const updatedSchedule = this.scheduleRepository.save({
         ...updatedScheduleObject,
         ...updateScheduleDto,
       });
 
-      return updatedVehicle;
+      return updatedSchedule;
     } catch (error) {
       return error?.response;
     }
@@ -139,7 +139,7 @@ export class ScheduleService {
       },
     });
 
-    return schedules.length < 1 ? true : false;
+    return schedules;
   }
 
   /**

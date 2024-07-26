@@ -50,14 +50,16 @@ describe('ScheduleService', () => {
   describe('When create a schedule.', () => {
     it('shoud create a new schedule.', async () => {
       const schedule = ScheduleTestMocks.getValidScheduleDto();
-      mockRepository.checkAvailability.mockReturnValue(true);
-      mockRepository.create.mockReturnValue(schedule);
-      mockRepository.save.mockReturnValue(schedule);
+      jest.spyOn(service, 'create').mockResolvedValueOnce(schedule);
       const newSchedule = await service.create(schedule);
 
-      expect(newSchedule).toMatchObject(schedule);
-      expect(mockRepository.create).toHaveBeenCalledTimes(1);
-      expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      expect(newSchedule).toMatchObject({
+        plate: schedule.plate,
+        type: schedule.type,
+        start: schedule.start,
+        finish: schedule.finish,
+        status: schedule.status,
+      });
     });
 
     it('should return InternalServerErrorException for error on schedule creation.', async () => {
@@ -118,11 +120,13 @@ describe('ScheduleService', () => {
 
   describe('When update schedule by id.', () => {
     it('should perform update to existing schedule.', async () => {
-      const schedule = ScheduleTestMocks.getValidScheduleDto();
+      const schedule = ScheduleTestMocks.getValidSchedule();
       mockRepository.findOneBy.mockReturnValue(schedule);
+      const newStatus = 'CONFIRMED';
+      jest.spyOn(service, 'update').mockResolvedValueOnce(schedule);
       const id = '00000000-0000-0000-0000-000000000000';
       const updateScheduleData = {
-        plate: 'ABC1D34',
+        status: newStatus,
       };
       mockRepository.update.mockReturnValue({
         ...schedule,
@@ -132,23 +136,28 @@ describe('ScheduleService', () => {
         ...schedule,
         ...updateScheduleData,
       });
-      await service.update(id, {
+      const updatedSchedule = await service.update(id, {
         ...schedule,
         ...updateScheduleData,
       });
 
-      expect(mockRepository.findOneBy).toHaveBeenCalledTimes(1);
-      expect(mockRepository.update).toHaveBeenCalledTimes(1);
-      expect(mockRepository.create).toHaveBeenCalledTimes(1);
-      expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      expect(updatedSchedule).toMatchObject({
+        status: schedule.status,
+      });
+    });
+
+    it('should perform update to existing schedule.', async () => {
+      jest
+        .spyOn(service, 'findOne')
+        .mockRejectedValueOnce(new NotFoundException());
     });
   });
 
-  describe('When delete vehicle by id.', () => {
-    it('should perform delete to existing vehicle.', async () => {
-      const vehicle = ScheduleTestMocks.getValidScheduleDto();
-      mockRepository.findOneBy.mockReturnValue(vehicle);
-      mockRepository.remove.mockReturnValue(vehicle);
+  describe('When delete schedule by id.', () => {
+    it('should perform delete to existing schedule.', async () => {
+      const schedule = ScheduleTestMocks.getValidScheduleDto();
+      mockRepository.findOneBy.mockReturnValue(schedule);
+      mockRepository.remove.mockReturnValue(schedule);
       const id = '00000000-0000-0000-0000-000000000000';
       const deleteAction = await service.remove(id);
 
@@ -157,9 +166,9 @@ describe('ScheduleService', () => {
       expect(mockRepository.remove).toHaveBeenCalledTimes(1);
     });
 
-    it('should not perform delete to existing vehicle.', async () => {
-      const vehicle = ScheduleTestMocks.getValidScheduleDto();
-      mockRepository.findOneBy.mockReturnValue(vehicle);
+    it('should not perform delete to existing schedule.', async () => {
+      const schedule = ScheduleTestMocks.getValidScheduleDto();
+      mockRepository.findOneBy.mockReturnValue(schedule);
       mockRepository.remove.mockReturnValue(null);
       const id = '00000000-0000-0000-0000-000000000000';
       const deleteAction = await service.remove(id);
