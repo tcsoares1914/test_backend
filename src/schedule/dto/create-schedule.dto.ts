@@ -15,7 +15,7 @@ export class CreateScheduleDto {
 
   @IsString()
   @IsOptional()
-  finish: Date;
+  finish?: Date;
 
   @IsString()
   @IsOptional()
