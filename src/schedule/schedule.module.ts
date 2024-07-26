@@ -1,18 +1,11 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleController } from '@src/schedule/schedule.controller';
 import { ScheduleService } from '@src/schedule/schedule.service';
-import {
-  Schedule,
-  ScheduleSchema,
-} from '@src/schedule/schemas/schedule.schema';
+import { Schedule } from '@src/schedule/entities/schedule.entity';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Schedule.name, schema: ScheduleSchema },
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([Schedule])],
   controllers: [ScheduleController],
   providers: [ScheduleService],
 })

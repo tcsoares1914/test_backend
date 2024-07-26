@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import ormConfig from '@src/config/orm/mysql.config';
 import apiConfig from '@src/config/api.config';
 import { HealthCheckModule } from '@src/health-check/health-check.module';
-import { ScheduleModule } from './schedule/schedule.module';
+import { ScheduleModule } from '@src/schedule/schedule.module';
 
 const importedModules = [HealthCheckModule, ScheduleModule];
 
@@ -13,12 +14,8 @@ const importedModules = [HealthCheckModule, ScheduleModule];
       load: [apiConfig],
       isGlobal: true,
     }),
-    MongooseModule.forRoot(
-      'mongodb+srv://root:hxxTdgtfiWS44uU4@hogwarts.j2i6j33.mongodb.net/',
-    ),
+    TypeOrmModule.forRoot(ormConfig),
     ...importedModules,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

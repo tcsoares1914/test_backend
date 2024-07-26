@@ -5,7 +5,7 @@ import { CreateScheduleDto } from '@src/schedule/dto/create-schedule.dto';
 export class UpdateScheduleDto extends PartialType(CreateScheduleDto) {
   @IsString()
   @IsOptional()
-  _id?: string;
+  id?: string;
 
   @IsString()
   @IsOptional()
