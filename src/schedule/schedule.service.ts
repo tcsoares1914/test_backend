@@ -29,7 +29,7 @@ export class ScheduleService {
       const availability =
         await this.checkCreateAvailability(createScheduleDto);
 
-      if (availability.length > 0) {
+      if (availability === false) {
         throw new BadRequestException('Slot are not available for scheduling!');
       }
 
@@ -142,18 +142,24 @@ export class ScheduleService {
     );
     createScheduleDto.finish = finish;
 
+    if (createScheduleDto.status === 'CANCELED') {
+      return false;
+    }
+
     const schedules = await this.scheduleRepository.find({
       where: [
         {
           start: Between(new Date(createScheduleDto.start), new Date(finish)),
-        },
-        {
           status: 'CONFIRMED',
         },
       ],
     });
 
-    return schedules;
+    if (schedules.length > 0) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
