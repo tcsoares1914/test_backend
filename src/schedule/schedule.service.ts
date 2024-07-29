@@ -4,10 +4,11 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Between, Not, Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateScheduleDto } from '@src/schedule/dto/create-schedule.dto';
 import { UpdateScheduleDto } from '@src/schedule/dto/update-schedule.dto';
+import { StatusDto } from '@src/cards/dto/status.dto';
 import { Schedule } from '@src/schedule/entities/schedule.entity';
 
 @Injectable()
@@ -75,6 +76,19 @@ export class ScheduleService {
   }
 
   /**
+   * List one collection item.
+   */
+  async findByStatus(statusDto: StatusDto) {
+    const schedules = await this.scheduleRepository.find({
+      where: {
+        status: statusDto.status,
+      },
+    });
+
+    return schedules;
+  }
+
+  /**
    * Update one collection item.
    */
   async update(id: string, updateScheduleDto: UpdateScheduleDto) {
@@ -132,36 +146,6 @@ export class ScheduleService {
       where: [
         {
           start: Between(new Date(createScheduleDto.start), new Date(finish)),
-        },
-        {
-          status: 'CONFIRMED',
-        },
-      ],
-    });
-
-    return schedules;
-  }
-
-  /**
-   * Check slot time availability for creation.
-   */
-  protected async checkUpdateAvailability(
-    id: string,
-    updateScheduleDto: UpdateScheduleDto,
-  ) {
-    const finish = this.getSlotFinishDate(
-      updateScheduleDto.type,
-      updateScheduleDto.start,
-    );
-    updateScheduleDto.finish = finish;
-
-    const schedules = await this.scheduleRepository.find({
-      where: [
-        {
-          id: Not(id),
-        },
-        {
-          start: Between(new Date(updateScheduleDto.start), new Date(finish)),
         },
         {
           status: 'CONFIRMED',

@@ -5,8 +5,9 @@ import ormConfig from '@src/config/orm/mysql.config';
 import apiConfig from '@src/config/api.config';
 import { HealthCheckModule } from '@src/health-check/health-check.module';
 import { ScheduleModule } from '@src/schedule/schedule.module';
+import { CardsModule } from '@src/cards/cards.module';
 
-const importedModules = [HealthCheckModule, ScheduleModule];
+const importedModules = [HealthCheckModule, ScheduleModule, CardsModule];
 
 @Module({
   imports: [

@@ -6,6 +6,7 @@ import { Schedule } from '@src/schedule/entities/schedule.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Schedule])],
+  exports: [ScheduleService],
   controllers: [ScheduleController],
   providers: [ScheduleService],
 })
