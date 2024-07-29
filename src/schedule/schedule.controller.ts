@@ -3,9 +3,9 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { ScheduleService } from '@src/schedule/schedule.service';
 import { CreateScheduleDto } from '@src/schedule/dto/create-schedule.dto';
@@ -38,7 +38,7 @@ export class ScheduleController {
   /**
    * Update one collection item.
    */
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id') id: string,
     @Body() updateScheduleDto: UpdateScheduleDto,

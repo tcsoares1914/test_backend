@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Between, Repository } from 'typeorm';
+import { Between, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateScheduleDto } from '@src/schedule/dto/create-schedule.dto';
 import { UpdateScheduleDto } from '@src/schedule/dto/update-schedule.dto';
@@ -25,7 +25,8 @@ export class ScheduleService {
    */
   async create(createScheduleDto: CreateScheduleDto) {
     try {
-      const availability = await this.checkAvailability(createScheduleDto);
+      const availability =
+        await this.checkCreateAvailability(createScheduleDto);
 
       if (availability.length > 0) {
         throw new BadRequestException('Slot are not available for scheduling!');
@@ -78,12 +79,6 @@ export class ScheduleService {
    */
   async update(id: string, updateScheduleDto: UpdateScheduleDto) {
     try {
-      const availability = await this.checkAvailability(updateScheduleDto);
-
-      if (availability.length > 0) {
-        throw new BadRequestException('Slot are not available for scheduling!');
-      }
-
       const finish = this.getSlotFinishDate(
         updateScheduleDto.type,
         updateScheduleDto.start,
@@ -122,10 +117,10 @@ export class ScheduleService {
   }
 
   /**
-   * Check slot time availability.e.
+   * Check slot time availability for creation.
    */
-  protected async checkAvailability(
-    createScheduleDto: CreateScheduleDto | UpdateScheduleDto,
+  protected async checkCreateAvailability(
+    createScheduleDto: CreateScheduleDto,
   ) {
     const finish = this.getSlotFinishDate(
       createScheduleDto.type,
@@ -134,9 +129,44 @@ export class ScheduleService {
     createScheduleDto.finish = finish;
 
     const schedules = await this.scheduleRepository.find({
-      where: {
-        start: Between(new Date(createScheduleDto.start), new Date(finish)),
-      },
+      where: [
+        {
+          start: Between(new Date(createScheduleDto.start), new Date(finish)),
+        },
+        {
+          status: 'CONFIRMED',
+        },
+      ],
+    });
+
+    return schedules;
+  }
+
+  /**
+   * Check slot time availability for creation.
+   */
+  protected async checkUpdateAvailability(
+    id: string,
+    updateScheduleDto: UpdateScheduleDto,
+  ) {
+    const finish = this.getSlotFinishDate(
+      updateScheduleDto.type,
+      updateScheduleDto.start,
+    );
+    updateScheduleDto.finish = finish;
+
+    const schedules = await this.scheduleRepository.find({
+      where: [
+        {
+          id: Not(id),
+        },
+        {
+          start: Between(new Date(updateScheduleDto.start), new Date(finish)),
+        },
+        {
+          status: 'CONFIRMED',
+        },
+      ],
     });
 
     return schedules;
