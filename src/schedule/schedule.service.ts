@@ -29,8 +29,6 @@ export class ScheduleService {
       const availability =
         await this.checkCreateAvailability(createScheduleDto);
 
-      console.log(availability);
-
       if (availability === false) {
         throw new BadRequestException('Slot are not available for scheduling!');
       }

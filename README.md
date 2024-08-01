@@ -47,6 +47,15 @@ $ cp .env.example .env
 
 Tenha instalado o [Docker](https://docs.docker.com/engine/install/) e [Docker Compose](https://docs.docker.com/compose/install/) para criar e executar os containers.
 
+Primeiro é necessário a criação de uma rede.
+
+```bash
+# Criando uma network externa.
+$ docker network create poc
+```
+
+Agora crie os containers.
+
 ```bash
 # Iniciando a criação dos containers.
 $ docker compose up -d
