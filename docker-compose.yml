@@ -37,4 +37,4 @@ services:
       - ${APPLICATION_PORT}:3000
 networks:
   poc:
-    driver: bridge
+    external: true
